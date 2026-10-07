@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Stimmen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Concepto: una pared de fichas tipo Scrabble alemán. Cada exalumno es una ficha de color
+   con la palabra alemana que eligió; al pulsarla se abre el vídeo. */
+:root {
+  --bg: #F4F5FA;
+  --fg: #0B0F2A;
+  --muted: #565B7A;
+  --line: #D5D8E8;
+  --panel: #FFFFFF;
+  --accent: #2338E8;
+
+  --t1: #2338E8; --t1f: #FFFFFF;
+  --t2: #FF5A36; --t2f: #0B0F2A;
+  --t3: #FFD23F; --t3f: #0B0F2A;
+  --t4: #5FE3B5; --t4f: #0B0F2A;
+  --t5: #0B0F2A; --t5f: #F4F5FA;
+
+  --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #090C22; --fg: #F1F2FB; --muted: #9DA2C6; --line: #262B55; --panel: #12163A;
+    --accent: #8E9BFF; --t5: #1E2459; --t5f: #F1F2FB;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #090C22; --fg: #F1F2FB; --muted: #9DA2C6; --line: #262B55; --panel: #12163A;
+  --accent: #8E9BFF; --t5: #1E2459; --t5f: #F1F2FB;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-inline: clamp(1rem, 4vw, 3rem);
+  padding-block: clamp(1.25rem, 4vw, 3rem);
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.wrap { max-width: 80rem; margin-inline: auto; display: flex; flex-direction: column; gap: clamp(1.5rem, 3vw, 2.5rem); }
+.mono { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+
+/* Cabecera */
+.hero { display: flex; flex-direction: column; gap: 1.25rem; }
+.kicker { color: var(--muted); }
+.word { display: flex; gap: clamp(.25rem, 1.2vw, .7rem); margin: 0; padding-block: .5rem .9rem; }
+.letter {
+  position: relative; flex: 0 0 auto;
+  width: clamp(2.5rem, 11.5vw, 8.25rem); aspect-ratio: 1;
+  display: grid; place-items: center;
+  background: var(--tb); color: var(--tf);
+  border-radius: 9%;
+  font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+  font-size: clamp(2.3rem, 10.4vw, 7.6rem); line-height: 1; padding-top: .06em;
+  transform: rotate(var(--r));
+  box-shadow: 0 .3rem 0 rgba(0, 0, 0, .28);
+  animation: drop .75s cubic-bezier(.2, 1.5, .4, 1) both;
+  animation-delay: calc(var(--n) * 70ms);
+}
+.letter .pts { position: absolute; right: .4em; bottom: .3em; font-family: var(--font-mono); font-weight: 500; font-size: clamp(.55rem, 1.5vw, .95rem); line-height: 1; padding: 0; }
+@keyframes drop { from { transform: translateY(-1.6rem) rotate(calc(var(--r) * 4)); } to { transform: translateY(0) rotate(var(--r)); } }
+.hero-row { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.25rem 2rem; }
+.lead { margin: 0; max-width: 38rem; font-size: clamp(1.1rem, 2.2vw, 1.4rem); line-height: 1.4; text-wrap: pretty; }
+.etym { color: var(--muted); margin: 0; }
+.btn {
+  display: inline-flex; align-items: center; gap: .6rem;
+  background: var(--fg); color: var(--bg); border: 0; border-radius: 999px;
+  padding: .8rem 1.4rem; font-weight: 600; transition: transform .15s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn svg { width: 1.1rem; height: 1.1rem; }
+
+/* Cinta de palabras */
+.strip { overflow: hidden; background: var(--fg); color: var(--bg); border-radius: .5rem; padding-block: .8rem; }
+.track { display: flex; width: max-content; animation: slide 55s linear infinite; }
+.strip:hover .track { animation-play-state: paused; }
+.strip-item { display: inline-flex; align-items: baseline; gap: .7rem; padding-right: 2.2rem; white-space: nowrap; }
+.strip-item b { font-family: var(--font-display); font-weight: 900; font-size: 2rem; line-height: 1; text-transform: uppercase; }
+.strip-item i { font-family: var(--font-mono); font-style: normal; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+.strip-item::after { content: ""; width: .5rem; height: .5rem; background: var(--t3); align-self: center; margin-left: 1.5rem; transform: rotate(45deg); }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+/* Filtros */
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .9rem 1.5rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chip { background: transparent; border: 1.5px solid var(--fg); border-radius: 999px; padding: .35rem .95rem; font-size: .9rem; font-weight: 500; }
+.chip:hover { background: var(--line); }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.count { color: var(--muted); }
+
+/* Pared de fichas */
+.grid {
+  display: grid; gap: .75rem; grid-auto-flow: dense;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  grid-auto-rows: 9.5rem;
+}
+.tile {
+  grid-row: span 2; position: relative; overflow: hidden; container-type: inline-size;
+  display: flex; flex-direction: column; justify-content: space-between; gap: .5rem;
+  text-align: left; padding: 1rem;
+  background: var(--tb); color: var(--tf);
+  border: 0; border-radius: .6rem; min-width: 0;
+  animation: rise .5s cubic-bezier(.2, .8, .3, 1) both; animation-delay: calc(var(--i) * 45ms);
+  transition: transform .2s cubic-bezier(.2, .8, .3, 1), box-shadow .2s;
+}
+@keyframes rise { from { transform: translateY(14px); } to { transform: translateY(0); } }
+@media (min-width: 40rem) { .tile.wide { grid-column: span 2; } }
+.tile:hover, .tile:focus-visible { transform: translateY(-5px) rotate(-.6deg); box-shadow: 0 .9rem 0 -.2rem rgba(0, 0, 0, .22); }
+.tile .cartel { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tile.has-cartel { color: #fff; }
+.tile.has-cartel::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to top, rgba(5, 7, 20, .88) 8%, rgba(5, 7, 20, .1) 60%, rgba(5, 7, 20, .35)); }
+.tile > :not(.cartel) { position: relative; z-index: 2; }
+.tile-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.badge { border: 1px solid currentColor; border-radius: 3px; padding: 0 .35rem; margin-left: .5rem; font-size: .62rem; }
+.play {
+  position: absolute !important; right: 1rem; top: 3rem; width: 3.1rem; height: 3.1rem; border-radius: 50%;
+  display: grid; place-items: center; background: var(--tf); color: var(--tb);
+  transition: transform .2s cubic-bezier(.2, 1.6, .4, 1);
+}
+.tile.has-cartel .play { background: #fff; color: #0B0F2A; }
+.tile:hover .play, .tile:focus-visible .play { transform: scale(1.18); }
+.play svg { width: 1.3rem; height: 1.3rem; margin-left: .15rem; }
+.tile-bottom { display: flex; flex-direction: column; gap: .3rem; }
+.palabra {
+  display: block; white-space: nowrap; font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+  line-height: .86; font-size: calc(var(--k) * 1cqw);
+}
+.sig { font-size: .85rem; line-height: 1.25; opacity: .85; }
+.who { font-size: .95rem; line-height: 1.3; margin-top: .25rem; }
+.who b { font-weight: 700; }
+.empty { padding: 3rem 0; color: var(--muted); }
+
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 2rem; color: var(--muted); border-top: 1.5px solid var(--line); padding-top: 1rem; }
+.foot p { margin: 0; }
+
+/* Ventana del vídeo */
+.modal { position: fixed; inset: 0; z-index: 50; display: flex; overflow-y: auto; padding: clamp(.75rem, 3vw, 2rem); padding-top: max(clamp(.75rem, 3vw, 2rem), env(safe-area-inset-top, 0px)); padding-bottom: max(clamp(.75rem, 3vw, 2rem), env(safe-area-inset-bottom, 0px)); }
+.backdrop { position: fixed; inset: 0; background: rgba(5, 7, 20, .86); backdrop-filter: blur(8px); }
+.sheet {
+  position: relative; margin: auto; width: 100%; max-width: 76rem; border-radius: .8rem; overflow: hidden;
+  background: var(--panel); display: grid; grid-template-columns: minmax(0, 1fr);
+  animation: pop .35s cubic-bezier(.2, 1.2, .4, 1) both;
+}
+@keyframes pop { from { transform: translateY(1.5rem) scale(.97); } to { transform: none; } }
+@media (min-width: 58rem) { .sheet { grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); } }
+.close {
+  position: absolute; z-index: 5; top: .75rem; right: .75rem; width: 2.6rem; height: 2.6rem; border-radius: 50%;
+  border: 0; background: rgba(5, 7, 20, .7); color: #fff; display: grid; place-items: center;
+}
+.close svg { width: 1.1rem; height: 1.1rem; }
+.stage { position: relative; background: #000; aspect-ratio: 16 / 9; min-height: 14rem; display: grid; }
+.stage video { width: 100%; height: 100%; display: block; background: #000; object-fit: contain; }
+.stage-fallback {
+  background: var(--tb); color: var(--tf); container-type: inline-size;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 1.5rem; text-align: center;
+}
+.stage-fallback .palabra { font-size: calc(var(--k) * .9cqw); }
+.stage-fallback p { margin: 0; max-width: 28rem; }
+.stage-fallback .btn { background: var(--tf); color: var(--tb); text-decoration: none; }
+.info {
+  background: var(--tb); color: var(--tf); container-type: inline-size;
+  padding: clamp(1.25rem, 3vw, 2rem); display: flex; flex-direction: column; gap: 1rem; min-width: 0;
+}
+.info .palabra { font-size: calc(var(--k) * .85cqw); line-height: .9; white-space: normal; overflow-wrap: anywhere; }
+.info .sig { font-size: 1rem; font-style: italic; }
+.info blockquote { margin: .25rem 0; padding: 0; font-size: 1.15rem; line-height: 1.4; text-wrap: pretty; }
+.info .name { font-weight: 700; font-size: 1.2rem; line-height: 1.25; margin: 0; }
+.info .ahora { margin: 0; opacity: .85; }
+.tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+.tags span { border: 1.5px solid currentColor; border-radius: 999px; padding: .1rem .65rem; font-size: .8rem; }
+.nav { margin-top: auto; padding-top: 1rem; display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
+.nav button { background: var(--tf); color: var(--tb); border: 0; border-radius: 999px; padding: .55rem 1.1rem; font-weight: 600; }
+.nav button:disabled { opacity: .35; cursor: default; }
+.nav .pos { opacity: .8; }
+
+@media (prefers-reduced-motion: reduce) {
+  .track, .letter, .tile, .sheet { animation: none; }
+  .strip { overflow-x: auto; }
+  .tile, .btn, .play { transition: none; }
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="hero">
+    <div class="mono kicker" id="kicker"></div>
+    <h1 class="word" id="word" aria-label="Stimmen"></h1>
+    <div class="hero-row">
+      <div>
+        <p class="lead" id="lead"></p>
+        <p class="mono etym">die Stimme, -n · la voz</p>
+      </div>
+      <button class="btn" id="random" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>
+        Una al azar
+      </button>
+    </div>
+  </header>
+
+  <div class="strip" aria-hidden="true"><div class="track" id="track"></div></div>
+
+  <div class="bar">
+    <div class="chips" id="chips" role="group" aria-label="Filtrar por tema"></div>
+    <div class="count mono" id="count" aria-live="polite"></div>
+  </div>
+
+  <main class="grid" id="grid"></main>
+
+  <footer class="foot">
+    <p id="pie"></p>
+    <p id="nota-ejemplo" hidden>Las fichas marcadas como ejemplo se sustituyen por los vídeos reales.</p>
+  </footer>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-label="Vídeo">
+  <div class="backdrop" id="backdrop"></div>
+  <div class="sheet" id="sheet">
+    <button class="close" id="close" type="button" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>
+    </button>
+    <div class="stage" id="stage"></div>
+    <aside class="info" id="info"></aside>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CÓMO AÑADIR UN VÍDEO
+   Copia un bloque de VOCES, pégalo al final de la lista y cambia los datos.
+   - palabra:     la palabra alemana que representa a la persona
+   - significado: su traducción o explicación breve
+   - archivo:     ruta del vídeo publicado junto a la página, p. ej. "videos/lucia.mp4"
+   - enlace:      alternativa si el vídeo está alojado fuera (se abre en otra pestaña)
+   - cartel:      imagen opcional para la ficha, p. ej. "carteles/lucia.jpg"
+   - destacado:   true para que la ficha ocupe doble ancho
+   - ejemplo:     quítalo (o pon false) cuando el vídeo sea real
+   ============================================================ */
+const SITE = {
+  kicker: "Universidad de Valladolid · Estudios de alemán",
+  lead: "Antiguos estudiantes cuentan en pocos minutos qué les dio estudiar alemán. Elige una palabra y escúchalos.",
+  pie: "Universidad de Valladolid"
+};
+
+const VOCES = [
+  { nombre: "Nombre por añadir", promocion: "", ahora: "", palabra: "Fernweh",
+    significado: "Nostalgia de lugares lejanos", cita: "",
+    etiquetas: [], duracion: "1:43", archivo: "videos/voz-01.mp4", enlace: "", cartel: "carteles/voz-01.jpg", destacado: true },
+  { nombre: "Nombre por añadir", promocion: "", ahora: "", palabra: "Neugier",
+    significado: "Curiosidad", cita: "",
+    etiquetas: [], duracion: "2:35", archivo: "videos/voz-02.mp4", enlace: "", cartel: "carteles/voz-02.jpg" },
+  { nombre: "Nombre por añadir", promocion: "", ahora: "", palabra: "Sprachgefühl",
+    significado: "Sensibilidad para la lengua", cita: "",
+    etiquetas: [], duracion: "5:00", archivo: "videos/voz-03.mp4", enlace: "", cartel: "carteles/voz-03.jpg" },
+  { nombre: "Nombre Apellido", promocion: "2017", ahora: "Ocupación actual, ciudad", palabra: "Weltoffenheit",
+    significado: "Apertura al mundo", cita: "Aquí irá una frase destacada del vídeo.",
+    etiquetas: ["Empresa", "Erasmus"], duracion: "4:10", archivo: "", enlace: "", cartel: "", ejemplo: true },
+  { nombre: "Nombre Apellido", promocion: "2022", ahora: "Ocupación actual, ciudad", palabra: "Durchblick",
+    significado: "Ver con claridad", cita: "Aquí irá una frase destacada del vídeo.",
+    etiquetas: ["Investigación"], duracion: "3:05", archivo: "", enlace: "", cartel: "", ejemplo: true },
+  { nombre: "Nombre Apellido", promocion: "2020", ahora: "Ocupación actual, ciudad", palabra: "Aufbruch",
+    significado: "Ponerse en marcha", cita: "Aquí irá una frase destacada del vídeo.",
+    etiquetas: ["Empresa"], duracion: "2:30", archivo: "", enlace: "", cartel: "", ejemplo: true }
+];
+/* ============================================================ */
+
+const PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
+const NCOL = 5;
+const $ = (id) => document.getElementById(id);
+
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "class") e.className = v;
+    else if (k === "style") e.style.cssText = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid === null || kid === undefined || kid === false) continue;
+    e.append(kid.nodeType ? kid : document.createTextNode(kid));
+  }
+  return e;
+}
+const colorOf = (i) => (i % NCOL) + 1;
+const kOf = (palabra, max) => Math.min(max, 160 / palabra.length).toFixed(2);
+
+let filtro = "Todas";
+let lista = [];      // [{ v, i }] según el filtro
+let actual = -1;     // posición dentro de lista
+let volverA = null;
+
+/* Cabecera: fichas con los valores del Scrabble alemán */
+const LETRAS = [["S", 1], ["T", 1], ["I", 1], ["M", 3], ["M", 3], ["E", 1], ["N", 1]];
+const ROT = [-4, 3, -2, 4, -3, 2, -4];
+LETRAS.forEach(([l, p], n) => {
+  const c = colorOf(n);
+  $("word").append(h("span", { class: "letter", "aria-hidden": "true", style: `--tb:var(--t${c});--tf:var(--t${c}f);--r:${ROT[n]}deg;--n:${n}` }, l, h("span", { class: "pts" }, String(p))));
+});
+$("kicker").textContent = SITE.kicker;
+$("lead").textContent = SITE.lead;
+$("pie").textContent = SITE.pie;
+if (VOCES.some((v) => v.ejemplo)) $("nota-ejemplo").hidden = false;
+
+/* Cinta de palabras */
+(function () {
+  const items = VOCES.map((v) => h("span", { class: "strip-item" }, h("b", {}, v.palabra), h("i", {}, v.significado)));
+  const grupo = [...items, ...items].map((n) => n.cloneNode(true));
+  const dos = [...grupo, ...grupo.map((n) => n.cloneNode(true))];
+  $("track").append(...dos);
+})();
+
+/* Filtros */
+function pintarFiltros() {
+  const tags = ["Todas", ...new Set(VOCES.flatMap((v) => v.etiquetas || []))];
+  $("chips").replaceChildren(...tags.map((t) =>
+    h("button", { class: "chip", type: "button", "aria-pressed": String(t === filtro), onclick: () => { filtro = t; pintar(); } }, t)));
+}
+
+/* Pared */
+function ficha(v, i, pos) {
+  const c = colorOf(i);
+  return h("button", {
+    class: "tile" + (v.destacado ? " wide" : "") + (v.cartel ? " has-cartel" : ""),
+    type: "button",
+    style: `--tb:var(--t${c});--tf:var(--t${c}f);--k:${kOf(v.palabra, 26)};--i:${pos}`,
+    "aria-label": `Ver el vídeo de ${v.nombre}: ${v.palabra}`,
+    onclick: () => abrir(pos)
+  },
+    v.cartel ? h("img", { class: "cartel", src: v.cartel, alt: "", loading: "lazy" }) : null,
+    h("span", { class: "tile-top mono" },
+      h("span", {}, v.promocion, v.ejemplo ? h("span", { class: "badge" }, "Ejemplo") : null),
+      h("span", {}, v.duracion || "")),
+    h("span", { class: "play", innerHTML: null }, ""),
+    h("span", { class: "tile-bottom" },
+      h("span", { class: "palabra" }, v.palabra),
+      h("span", { class: "sig" }, v.significado),
+      h("span", { class: "who" }, h("b", {}, v.nombre), v.ahora ? " · " + v.ahora : ""))
+  );
+}
+
+function pintar() {
+  lista = VOCES.map((v, i) => ({ v, i })).filter(({ v }) => filtro === "Todas" || (v.etiquetas || []).includes(filtro));
+  pintarFiltros();
+  const nodos = lista.map(({ v, i }, pos) => {
+    const f = ficha(v, i, pos);
+    f.querySelector(".play").innerHTML = PLAY;
+    return f;
+  });
+  $("grid").replaceChildren(...(nodos.length ? nodos : [h("p", { class: "empty" }, "Todavía no hay vídeos con este tema.")]));
+  $("count").textContent = lista.length + (lista.length === 1 ? " voz" : " voces");
+}
+
+/* Ventana del vídeo */
+function escenario(v, i) {
+  const c = colorOf(i);
+  const stage = $("stage");
+  stage.replaceChildren();
+  stage.style.aspectRatio = ""; stage.style.maxHeight = "";
+  const fallback = (msg, enlace) => {
+    stage.append(h("div", { class: "stage-fallback", style: `--tb:var(--t${c});--tf:var(--t${c}f);--k:${kOf(v.palabra, 22)}` },
+      h("span", { class: "palabra" }, v.palabra),
+      h("p", {}, msg),
+      enlace ? h("a", { class: "btn", href: enlace, target: "_blank", rel: "noopener" }, "Ver el vídeo") : null));
+  };
+  if (v.archivo) {
+    const video = h("video", { controls: true, playsinline: true, preload: "metadata", poster: v.cartel || null, src: v.archivo });
+    video.addEventListener("error", () => { stage.replaceChildren(); fallback("No se encuentra el archivo de este vídeo.", v.enlace); });
+    video.addEventListener("loadedmetadata", () => {
+      if (video.videoHeight > video.videoWidth) { stage.style.aspectRatio = "3 / 4"; stage.style.maxHeight = "82vh"; }
+    });
+    stage.append(video);
+    const p = video.play();
+    if (p && p.catch) p.catch(() => {});
+  } else if (v.enlace) {
+    fallback("Este vídeo se ve en su página de origen.", v.enlace);
+  } else {
+    fallback("Aquí aparecerá el vídeo de " + v.nombre + ".");
+  }
+}
+
+function abrir(pos) {
+  const { v, i } = lista[pos];
+  actual = pos;
+  const c = colorOf(i);
+  escenario(v, i);
+  const info = $("info");
+  info.style.cssText = `--tb:var(--t${c});--tf:var(--t${c}f);--k:${kOf(v.palabra, 22)}`;
+  info.replaceChildren(
+    h("div", { class: "mono" }, [v.promocion ? "Promoción " + v.promocion : "", v.duracion || ""].filter(Boolean).join(" · ")),
+    h("span", { class: "palabra", id: "m-palabra" }, v.palabra),
+    h("span", { class: "sig" }, v.significado),
+    v.cita ? h("blockquote", {}, "“" + v.cita + "”") : null,
+    h("p", { class: "name" }, v.nombre),
+    v.ahora ? h("p", { class: "ahora" }, v.ahora) : null,
+    (v.etiquetas || []).length ? h("div", { class: "tags" }, v.etiquetas.map((t) => h("span", {}, t))) : null,
+    h("div", { class: "nav" },
+      h("button", { type: "button", id: "prev", onclick: () => ir(-1), disabled: pos === 0 }, "← Anterior"),
+      h("span", { class: "pos mono" }, (pos + 1) + " / " + lista.length),
+      h("button", { type: "button", id: "next", onclick: () => ir(1), disabled: pos === lista.length - 1 }, "Siguiente →"))
+  );
+  $("modal").setAttribute("aria-label", "Vídeo de " + v.nombre);
+  if ($("modal").hidden) {
+    volverA = document.activeElement;
+    $("modal").hidden = false;
+    document.documentElement.style.overflow = "hidden";
+    $("close").focus();
+  }
+  $("modal").scrollTop = 0;
+}
+function ir(d) {
+  const n = actual + d;
+  if (n >= 0 && n < lista.length) abrir(n);
+}
+function cerrar() {
+  $("stage").replaceChildren();
+  $("modal").hidden = true;
+  document.documentElement.style.overflow = "";
+  actual = -1;
+  if (volverA && volverA.focus) volverA.focus();
+}
+
+$("close").addEventListener("click", cerrar);
+$("backdrop").addEventListener("click", cerrar);
+$("random").addEventListener("click", () => {
+  if (!lista.length) return;
+  abrir(Math.floor(Math.random() * lista.length));
+});
+document.addEventListener("keydown", (e) => {
+  if ($("modal").hidden) return;
+  if (e.key === "Escape") cerrar();
+  else if (e.key === "ArrowRight" && !(e.target.tagName === "VIDEO")) ir(1);
+  else if (e.key === "ArrowLeft" && !(e.target.tagName === "VIDEO")) ir(-1);
+});
+
+pintar();
+</script>
+
+</body>
+</html>
