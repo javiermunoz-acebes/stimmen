@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap">
 <style>
-/* Pared de fichas tipo Scrabble alemán. Cada exalumno es una ficha de color
+/* Concepto: una pared de fichas tipo Scrabble alemán. Cada exalumno es una ficha de color
    con la palabra alemana que eligió; al pulsarla se abre el vídeo. */
 :root {
   --bg: #F4F5FA;
@@ -255,9 +255,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
    - ejemplo:     quítalo (o pon false) cuando el vídeo sea real
    ============================================================ */
 const SITE = {
-  kicker: "Universidad de Valladolid · Grado en Lenguas Modernas (Alemán)",
+  kicker: "Universidad de Valladolid · Estudios de alemán",
   lead: "Antiguos estudiantes cuentan en pocos minutos qué les dio estudiar alemán. Elige una palabra y escúchalos.",
-  pie: "GIR: Filología Digital"
+  pie: "Universidad de Valladolid"
 };
 
 const VOCES = [
@@ -267,12 +267,15 @@ const VOCES = [
   { nombre: "Rubén Estebanez", promocion: "", ahora: "Trabaja en finanzas", palabra: "Weitblick",
     significado: "Visión de futuro", cita: "",
     etiquetas: ["Finanzas"], duracion: "2:35", archivo: "voz-02.mp4", enlace: "", cartel: "voz-02.jpg" },
-  { nombre: "Daniel González Saavedra", promocion: "", ahora: "Traducción en una farmacéutica", palabra: "Sprachgefühl",
+  { nombre: "Danier González Saavedra", promocion: "", ahora: "Traducción en una farmacéutica", palabra: "Sprachgefühl",
     significado: "Sensibilidad para la lengua", cita: "",
     etiquetas: ["Traducción"], duracion: "5:00", archivo: "voz-03.mp4", enlace: "", cartel: "voz-03.jpg" },
   { nombre: "Elena González Gutiérrez", promocion: "2021", ahora: "", palabra: "Fernweh",
     significado: "Nostalgia de lugares lejanos", cita: "",
-    etiquetas: ["Erasmus"], duracion: "5:03", archivo: "voz-04.mp4", enlace: "", cartel: "voz-04.jpg" },
+    etiquetas: [], duracion: "5:03", archivo: "voz-04.mp4", enlace: "", cartel: "voz-04.jpg" },
+  { nombre: "Nombre por añadir", promocion: "", ahora: "", palabra: "Neugier",
+    significado: "Curiosidad", cita: "",
+    etiquetas: [], duracion: "3:50", archivo: "voz-05.mp4", enlace: "", cartel: "voz-05.jpg" },
   { nombre: "Nombre Apellido", promocion: "2017", ahora: "Ocupación actual, ciudad", palabra: "Weltoffenheit",
     significado: "Apertura al mundo", cita: "Aquí irá una frase destacada del vídeo.",
     etiquetas: ["Empresa", "Erasmus"], duracion: "4:10", archivo: "", enlace: "", cartel: "", ejemplo: true },
