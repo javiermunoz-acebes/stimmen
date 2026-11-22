@@ -227,7 +227,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
   <footer class="foot">
     <p id="pie"></p>
-    <p id="nota-ejemplo" hidden>Deutsche Kultur Tage 2026.</p>
   </footer>
 </div>
 
@@ -276,16 +275,9 @@ const VOCES = [
   { nombre: "Alberto", promocion: "", ahora: "", palabra: "Neugier",
     significado: "Curiosidad", cita: "",
     etiquetas: ["Docencia"], duracion: "3:50", archivo: "voz-05.mp4", enlace: "", cartel: "voz-05.jpg" },
-    { nombre: "Lia Ballesteros", promocion: "2017-2021", ahora: "Profesora de alemán en la EOI", palabra: "Brücke", significado: "Puente", cita: "", etiquetas: ["Docencia"], duracion: "2:22", archivo: "voz-06.mp4", enlace: "", cartel: "voz-06.jpg" },
-  { nombre: "Nombre Apellido", promocion: "2017", ahora: "Ocupación actual, ciudad", palabra: "Weltoffenheit",
-    significado: "Apertura al mundo", cita: "Aquí irá una frase destacada del vídeo.",
-    etiquetas: ["Empresa", "Erasmus"], duracion: "4:10", archivo: "", enlace: "", cartel: "", ejemplo: true },
-  { nombre: "Nombre Apellido", promocion: "2022", ahora: "Ocupación actual, ciudad", palabra: "Durchblick",
-    significado: "Ver con claridad", cita: "Aquí irá una frase destacada del vídeo.",
-    etiquetas: ["Investigación"], duracion: "3:05", archivo: "", enlace: "", cartel: "", ejemplo: true },
-  { nombre: "Nombre Apellido", promocion: "2020", ahora: "Ocupación actual, ciudad", palabra: "Aufbruch",
-    significado: "Ponerse en marcha", cita: "Aquí irá una frase destacada del vídeo.",
-    etiquetas: ["Empresa"], duracion: "2:30", archivo: "", enlace: "", cartel: "", ejemplo: true }
+  { nombre: "Lia Ballesteros", promocion: "2017-2021", ahora: "Profesora de alemán en la EOI", palabra: "Brücke",
+    significado: "Puente", cita: "",
+    etiquetas: ["Docencia"], duracion: "2:22", archivo: "voz-06.mp4", enlace: "", cartel: "voz-06.jpg" }
 ];
 /* ============================================================ */
 
@@ -326,7 +318,6 @@ LETRAS.forEach(([l, p], n) => {
 $("kicker").textContent = SITE.kicker;
 $("lead").textContent = SITE.lead;
 $("pie").textContent = SITE.pie;
-if (VOCES.some((v) => v.ejemplo)) $("nota-ejemplo").hidden = false;
 
 /* Cinta de palabras */
 (function () {
